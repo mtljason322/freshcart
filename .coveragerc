@@ -1,0 +1,7 @@
+[run]
+source = src/freshcart
+omit =
+    src/freshcart/demo.py
+
+[report]
+show_missing = True
