@@ -1,4 +1,18 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
+
+# Environment variables
 .env
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
