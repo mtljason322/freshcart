@@ -3,7 +3,7 @@
 # sans guillemets. Améliore la compatibilité avec les versions futures.
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from datetime import date
 from typing import Protocol
 
@@ -14,48 +14,68 @@ from typing import Protocol
 # Toute classe qui implémente final_price() -> float sera considérée
 # comme un Pricable, même sans hériter explicitement d'une base.
 class Pricable(Protocol):
-    def final_price(self) -> float:
-        ...
+    def final_price(self) -> float: ...
 
 
 # -------------------------------------------------------------------
 # 2) Classe Product
 # -------------------------------------------------------------------
-# order=True génère __lt__/__le__/__gt__/__ge__ pour le tri.
+# order=True génère automatiquement les méthodes de comparaison
+# (__lt__, __gt__, etc.) afin de trier les produits par prix.
 @dataclass(order=True)
 class Product(Pricable):
-    # sort_index : utilisé pour le tri, pas affiché.
+    # utilisé pour le tri naturel (par prix), pas affiché
     sort_index: float = field(init=False, repr=False, compare=True)
 
-    sku: str
-    name: str
-    _price: float = field(repr=False, compare=False)
+    # champs "publics" obligatoires
+    sku: str   # identifiant unique
+    name: str  # nom du produit
 
-    def __post_init__(self) -> None:
-        # Valide et initialise via le setter (empêche prix négatif).
-        self.price = self._price
-        self.sort_index = self._price
+    # >>> "initial_price" est seulement un paramètre d'init (InitVar),
+    # il N'EST PAS stocké directement comme attribut d'instance.
+    # On le reçoit dans __post_init__, puis on passe par le setter.
+    initial_price: InitVar[float]
 
+    # stockage interne réel du prix
+    _price: float = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self, initial_price: float) -> None:
+        """
+        Méthode appelée automatiquement après __init__.
+        On utilise le setter 'price' pour appliquer la validation.
+        """
+        self._price = 0.0                 # valeur temporaire
+        self.price = initial_price        # passe par le setter (validation, arrondi)
+        self.sort_index = self._price     # synchroniser l'ordre de tri
+
+    # --- propriété "price" exposée proprement ---
     @property
     def price(self) -> float:
+        """Accès en lecture au prix validé."""
         return self._price
 
     @price.setter
     def price(self, value: float) -> None:
+        """Accès en écriture avec validation métier."""
         if value < 0:
-            # Validation métier : pas de prix négatif.
             raise ValueError("price cannot be negative")
+        # arrondi à 2 décimales (ex: 3.456 -> 3.46)
         self._price = round(float(value), 2)
-        # Maintenir l’ordre de tri cohérent.
+        # garder le champ 'sort_index' synchronisé pour le tri
         self.sort_index = self._price
 
+    # --- logique métier (polymorphisme) ---
     def final_price(self) -> float:
-        # Peut être redéfini par les sous-classes (polymorphisme).
+        """
+        Prix final (ici = prix normal).
+        Peut être redéfini dans les sous-classes
+        (ex: PerishableProduct applique des réductions).
+        """
         return self.price
 
     def __str__(self) -> str:
+        """Représentation lisible du produit."""
         return f"{self.name} ({self.sku}) - {self.price:.2f}$"
-
 
 # -------------------------------------------------------------------
 # 3) Classe PerishableProduct (hérite de Product)
@@ -63,7 +83,7 @@ class Product(Pricable):
 @dataclass(order=True)
 class PerishableProduct(Product):
     # On ne compare pas expiry_date pour l'ordre.
-    expiry_date: date = field(compare=False)
+    expiry_date: date = field(compare=False, kw_only=True)
 
     @property
     def is_expired(self) -> bool:

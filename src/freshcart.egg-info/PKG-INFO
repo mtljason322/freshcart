@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: freshcart
+Version: 0.1.0
+Summary: Freshcart training project (Python + DevOps practices)
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
+# FreshCart
+
+Projet d’entraînement Python + DevOps
+
+## Objectifs
+- Python “propre” (OOP, tests, packaging, async, API).
+- Outils DevOps : Git/GitHub, CI/CD (GitHub Actions), Docker, Terraform + AWS Free Tier, qualité (SonarQube), sécurité (Snyk), Ansible, etc.
+
+## Lancement rapide (sanity check)
+```bash
+python hello.py
