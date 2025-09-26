@@ -1,0 +1,43 @@
+name: Docker - Build & Test
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Build image and run tests in container
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Récupère le code de la PR / du push
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2) (Optionnel) Activer Buildx (moteur moderne de build Docker)
+      #    Utile si tu ajoutes du caching plus tard ou des builds multi-plateformes.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3) Construire l'image Docker de ce repo
+      #    Le tag local "freshcart-ci" évite les collisions avec d'autres jobs.
+      - name: Build image
+        run: |
+          docker build -t freshcart-ci .
+
+      # 4) Lancer les tests (le CMD du Dockerfile lance pytest avec couverture)
+      - name: Run unit tests in container (pytest)
+        run: |
+          docker run --rm freshcart-ci
+
+      # 5) (Optionnel) Overrider le CMD pour lancer Ruff
+      - name: Lint (Ruff) in container
+        run: |
+          docker run --rm freshcart-ci ruff check src tests
+
+      # 6) (Optionnel) Overrider le CMD pour lancer MyPy
+      - name: Type-check (MyPy) in container
+        run: |
+          docker run --rm freshcart-ci mypy src
