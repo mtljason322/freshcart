@@ -18,15 +18,6 @@ class Pricable(Protocol):
 
 
 # -------------------------------------------------------------------
-# 1) Duck typing : définir un contrat Pricable
-# -------------------------------------------------------------------
-# Toute classe qui implémente final_price() -> float sera considérée
-# comme un Pricable, même sans hériter explicitement d'une base.
-class Pricable(Protocol):
-    def final_price(self) -> float: ...
-
-
-# -------------------------------------------------------------------
 # 2) Classe Product
 # -------------------------------------------------------------------
 # order=True génère automatiquement les méthodes de comparaison
