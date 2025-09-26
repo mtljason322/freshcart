@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+src/freshcart/__init__.py
+src/freshcart/demo.py
+src/freshcart.egg-info/PKG-INFO
+src/freshcart.egg-info/SOURCES.txt
+src/freshcart.egg-info/dependency_links.txt
+src/freshcart.egg-info/top_level.txt
+src/freshcart/domain/__init__.py
+src/freshcart/domain/inventory.py
+src/freshcart/domain/products.py
+tests/test_inventory.py
+tests/test_products.py

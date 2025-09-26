@@ -9,3 +9,14 @@ select = ["E", "F", "W", "I"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[project]
+name = "freshcart"
+version = "0.1.0"
+description = "Freshcart training project (Python + DevOps practices)"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
