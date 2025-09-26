@@ -158,3 +158,48 @@ ruff check src tests --fix
 
 # ⚠️ Vérification de type
 mypy src
+
+## 🐳 Docker
+
+### Construire l’image
+
+# Depuis la racine du projet :
+docker build -t freshcart .
+
+### Lancer les tests dans le container
+
+# Le Dockerfile définit :
+# CMD ["pytest", "--cov=src/freshcart", "--cov-report=term-missing"]
+docker run --rm freshcart
+
+### Exécuter d’autres commandes dans le container
+
+# 🔍 Lancer Ruff dans le container
+docker run --rm freshcart ruff check src tests
+
+# 📐 Lancer MyPy dans le container
+docker run --rm freshcart mypy src
+
+# ▶️ Exécuter un script d’exemple
+docker run --rm freshcart python examples/demo_inventory.py
+
+### 🚀 Démarrer une API (plus tard)
+
+# Nous ajouterons une API (FastAPI) dans une prochaine étape. Pour l’exposer :
+docker run --rm -p 8000:8000 freshcart uvicorn freshcart.api.main:app --host 0.0.0.0 --port 8000
+
+### ✅ Commit (branche dédiée doc)
+
+git checkout -b docs/readme-docker
+git add README.md
+git commit -m "docs: add Docker usage section (build, run, override CMD)"
+git push -u origin docs/readme-docker
+
+### 📄 PR (texte court)
+
+What: Add Docker section in README (build/run/override CMD)  
+Why: Provide reproducible environment guidance  
+How to test: docker build -t freshcart . && docker run --rm freshcart  
+Notes: No code changes
+
+
