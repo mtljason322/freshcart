@@ -1,0 +1,56 @@
+name: Docker - Publish to GHCR
+
+on:
+  # Déclencheurs:
+  # - à chaque push sur main → on publie le tag "latest"
+  # - à chaque tag de type v*.*.* → on publie un tag versionné (ex: v0.1.0)
+  push:
+    branches: ["main"]
+    tags: ["v*.*.*"]
+
+# Droits du GITHUB_TOKEN pendant le job.
+permissions:
+  contents: read         # lire le code
+  packages: write        # ÉCRIRE dans le registre de packages (GHCR) ← indispensable
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Récupère le code du repo (la PR/commit)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2) Connexion au registre GHCR (ghcr.io) avec GITHUB_TOKEN (pas besoin de secret manuel)
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}          # l'utilisateur qui exécute le workflow
+          password: ${{ secrets.GITHUB_TOKEN }}  # token fourni par GitHub pour ce run
+
+      # 3) Génère automatiquement des tags & labels pour l'image en fonction du ref (main, tag semver, etc.)
+      #    - si on push sur main → tag "latest"
+      #    - si on push un tag vX.Y.Z → tag "vX.Y.Z"
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}  # ghcr.io/OWNER/REPO
+          tags: |
+            type=ref,event=branch,branch=main       # main → tag "main" (on va aussi forcer latest ci-dessous)
+            type=raw,value=latest,enable={{is_default_branch}}   # si main est la branche par défaut → "latest"
+            type=semver,pattern={{version}}         # si push de tag vX.Y.Z → "vX.Y.Z"
+
+      # 4) Build + Push l'image vers GHCR
+      #    - "push: true" → on pousse (publie) l'image
+      #    - "tags" / "labels" → viennent de l'étape précédente
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # platforms: linux/amd64   # (optionnel) si tu veux faire du multi-arch plus tard
