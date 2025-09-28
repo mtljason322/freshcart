@@ -1,4 +1,12 @@
+# Tests
 pytest
 pytest-cov
+
+# Qualité
 ruff
 mypy
+
+# API
+fastapi
+uvicorn[standard]
+httpx
