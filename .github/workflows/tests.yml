@@ -1,39 +1,38 @@
-name: CI  # Nom du workflow
+name: CI
 
-on:       # Quand lancer la CI
+on:
   push:
-    branches: ["**"]     # à chaque push (toutes branches)
+    branches: ["**"]
   pull_request:
-    branches: ["main"]   # et pour les PR vers main
+    branches: ["**"]
 
 jobs:
-  test:                   # Job "test"
-    runs-on: ubuntu-latest  # Runner Linux (rapide, standard)
-
+  test:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # Récupérer le code du repo
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"    # Version Python pour le job
+          python-version: "3.13"
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      - name: (Optional) Cache pip
+      - name: Cache pip (optional)
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pytest-cov
+          python -m pip install -e .
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       - name: Run tests with coverage
         run: python -m pytest --cov=src/freshcart --cov-report=term-missing
