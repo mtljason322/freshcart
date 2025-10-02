@@ -8,6 +8,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 class ProductNotFoundError(Exception):
     """Levée quand on cherche un produit absent de l'inventaire."""
+
     pass
 
 
@@ -42,7 +43,8 @@ class Inventory:
 
     def expired(self) -> List[Product]:
         return [
-            p for p in self._items
+            p
+            for p in self._items
             if hasattr(p, "is_expired") and getattr(p, "is_expired")
         ]
 
