@@ -28,7 +28,7 @@ class Product(Pricable):
     sort_index: float = field(init=False, repr=False, compare=True)
 
     # champs "publics" obligatoires
-    sku: str   # identifiant unique
+    sku: str  # identifiant unique
     name: str  # nom du produit
 
     # >>> "initial_price" est seulement un paramètre d'init (InitVar),
@@ -44,9 +44,9 @@ class Product(Pricable):
         Méthode appelée automatiquement après __init__.
         On utilise le setter 'price' pour appliquer la validation.
         """
-        self._price = 0.0                 # valeur temporaire
-        self.price = initial_price        # passe par le setter (validation, arrondi)
-        self.sort_index = self._price     # synchroniser l'ordre de tri
+        self._price = 0.0  # valeur temporaire
+        self.price = initial_price  # passe par le setter (validation, arrondi)
+        self.sort_index = self._price  # synchroniser l'ordre de tri
 
     # --- propriété "price" exposée proprement ---
     @property
@@ -76,6 +76,7 @@ class Product(Pricable):
     def __str__(self) -> str:
         """Représentation lisible du produit."""
         return f"{self.name} ({self.sku}) - {self.price:.2f}$"
+
 
 # -------------------------------------------------------------------
 # 3) Classe PerishableProduct (hérite de Product)

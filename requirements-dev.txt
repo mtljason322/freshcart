@@ -5,6 +5,7 @@ pytest-cov
 # Qualité
 ruff
 mypy
+black
 
 # API
 fastapi
