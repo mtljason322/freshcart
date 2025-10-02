@@ -4,14 +4,16 @@ from typing import Any, Dict
 
 from fastapi import FastAPI
 
-from freshcart.domain.inventory import Inventory  # NEW
+from freshcart.domain.inventory import Inventory
+
+from .routers import health, inventory, products
 
 
 def create_app(settings: Dict[str, Any] | None = None) -> FastAPI:
     """
-    Factory d'application (recommandée):
-    - facilite les tests
-    - permet d'injecter des settings plus tard
+    Factory d'application:
+    - crée et retourne une instance FastAPI isolée (utile pour tests)
+    - point unique pour injecter des settings plus tard (DB, CORS, etc.)
     """
     app = FastAPI(
         title="FreshCart API",
@@ -24,14 +26,13 @@ def create_app(settings: Dict[str, Any] | None = None) -> FastAPI:
 
     settings = settings or {}
 
-    # --- état applicatif en mémoire (pour le sprint actuel) ---
-    app.state.inventory = Inventory()  # NEW
+    # État applicatif en mémoire pour ce sprint (remplacé plus tard par une DB)
+    app.state.inventory = Inventory()
 
-    # --- routers ---
-    from .routers import health, products  # NEW
-
+    # Brancher les routers
     app.include_router(health.router)
-    app.include_router(products.router)  # NEW
+    app.include_router(products.router)
+    app.include_router(inventory.router)
 
     return app
 
@@ -39,6 +40,7 @@ def create_app(settings: Dict[str, Any] | None = None) -> FastAPI:
 if __name__ == "__main__":
     import uvicorn
 
+    # Lance uvicorn avec la factory (option factory=True)
     uvicorn.run(
         "freshcart.api.main:create_app",
         factory=True,
